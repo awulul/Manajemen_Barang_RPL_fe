@@ -73,19 +73,31 @@ const Login: React.FC = () => {
       {/* Card login */}
       <Card
         title={
-          <div style={{ textAlign: "center", fontSize: 22, fontWeight: 600 }}>
-            Login
+          <div
+            style={{
+              textAlign: "center",
+              fontSize: 24,
+              fontWeight: 700,
+              color: "#fff",
+            }}
+          >
+            Logistik Dan Peralatan
           </div>
         }
         style={{
           width: 420,
-          borderRadius: 16,
-          boxShadow: "0 15px 35px rgba(0,0,0,0.3)",
-          backgroundColor: "rgba(255, 255, 255, 0.95)",
+          borderRadius: 18,
+          overflow: "hidden",
+          boxShadow: "0 15px 40px rgba(0,0,0,0.35)",
+          background: "linear-gradient(135deg, #ff7e21 0%, #ff9f1c 100%)",
           border: "none",
           zIndex: 1,
         }}
-        bodyStyle={{ padding: 32 }}
+        bodyStyle={{
+          padding: 32,
+          background: "rgba(255,255,255,0.92)",
+          backdropFilter: "blur(4px)",
+        }}
       >
         <Form
           name="login"
@@ -126,7 +138,13 @@ const Login: React.FC = () => {
               block
               size="large"
               loading={loading}
-              style={{ borderRadius: 6, fontWeight: 600, fontSize: 16 }}
+              style={{
+                borderRadius: 8,
+                fontWeight: 700,
+                fontSize: 16,
+                backgroundColor: "#ff7e21",
+                borderColor: "#ff7e21",
+              }}
             >
               LOGIN
             </Button>

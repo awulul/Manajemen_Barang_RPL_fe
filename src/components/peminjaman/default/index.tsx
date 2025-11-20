@@ -58,6 +58,7 @@ const PeminjamanDefault: React.FC = () => {
         nama_peminjam: item.nama_peminjam,
         barang_id: item.barang_id,
         barang_name: item.barang?.nama_barang || "",
+        path_file_peminjaman: item.path_file_peminjaman || "",
         jumlah: item.jumlah ?? 0,
         tanggal_pinjam: item.tanggal_pinjam,
         status: item.status,

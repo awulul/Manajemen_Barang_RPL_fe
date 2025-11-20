@@ -10,39 +10,43 @@ export const barangColumns: (pagination: {
 }) => ColumnsType<any> = ({ current, pageSize, onDelete, onEdit }) => [
   {
     key: "no",
-    title: "NO.",
+    title: <span style={{ fontSize: 16, fontWeight: 600 }}>NO.</span>,
     align: "center",
-    render: (_, __, index) => (current - 1) * pageSize + index + 1,
+    render: (_, __, index) => (
+      <span style={{ fontSize: 16 }}>
+        {(current - 1) * pageSize + index + 1}
+      </span>
+    ),
   },
   {
-    title: "Nama Barang",
+    title: <span style={{ fontSize: 16, fontWeight: 600 }}>Nama Barang</span>,
     dataIndex: "nama_barang",
     key: "nama_barang",
     align: "center",
-    render: (text) => <span>{text || "-"}</span>,
+    render: (text) => <span style={{ fontSize: 16 }}>{text || "-"}</span>,
   },
   {
-    title: "Kategori",
+    title: <span style={{ fontSize: 16, fontWeight: 600 }}>Kategori</span>,
     dataIndex: "kategori",
     key: "kategori",
     align: "center",
-    render: (text) => <span>{text || "-"}</span>,
+    render: (text) => <span style={{ fontSize: 16 }}>{text || "-"}</span>,
   },
   {
-    title: "Stok",
+    title: <span style={{ fontSize: 16, fontWeight: 600 }}>Stok</span>,
     dataIndex: "stok",
     key: "stok",
     align: "center",
-    render: (text) => <span>{text}</span>,
+    render: (text) => <span style={{ fontSize: 16 }}>{text}</span>,
   },
   {
-    title: "Kondisi",
+    title: <span style={{ fontSize: 16, fontWeight: 600 }}>Kondisi</span>,
     dataIndex: "kondisi",
     key: "kondisi",
     align: "center",
     render: (text) => (
       <span
-        className={`px-2 py-1 rounded ${
+        className={`px-3 py-1 rounded text-[15px] font-medium ${
           text?.toLowerCase() === "baik"
             ? "bg-green-100 text-green-700"
             : text?.toLowerCase() === "rusak"
@@ -55,12 +59,12 @@ export const barangColumns: (pagination: {
     ),
   },
   {
-    title: "Gambar",
+    title: <span style={{ fontSize: 16, fontWeight: 600 }}>Gambar</span>,
     dataIndex: "path_img",
     key: "path_img",
     align: "center",
     render: (path) => {
-      if (!path) return <span>-</span>;
+      if (!path) return <span style={{ fontSize: 15 }}>-</span>;
 
       const imageUrl = path.startsWith("http")
         ? path
@@ -70,8 +74,8 @@ export const barangColumns: (pagination: {
         <Image
           src={imageUrl}
           alt="barang"
-          width={60}
-          height={60}
+          width={70}
+          height={70}
           style={{ objectFit: "cover", borderRadius: 8 }}
           fallback="https://via.placeholder.com/60?text=No+Image"
         />
@@ -80,19 +84,14 @@ export const barangColumns: (pagination: {
   },
   {
     key: "uuid",
-    title: "AKSI",
+    title: <span style={{ fontSize: 16, fontWeight: 600 }}>AKSI</span>,
     dataIndex: "uuid",
     align: "center",
     render: (value, record) => (
-      <div className="flex justify-center space-x-2">
+      <div className="flex justify-center space-x-3">
         <Tooltip title="Edit">
-          <Button
-            htmlType="button"
-            type="text"
-            onClick={() => onEdit(value)}
-            className="cursor-pointer"
-          >
-            <MdEdit className="text-lg text-blue-600" />
+          <Button htmlType="button" type="text" onClick={() => onEdit(value)}>
+            <MdEdit className="text-xl text-blue-600" />
           </Button>
         </Tooltip>
 
@@ -103,8 +102,8 @@ export const barangColumns: (pagination: {
           cancelText="Tidak"
         >
           <Tooltip title="Hapus">
-            <Button htmlType="button" type="text" className="cursor-pointer">
-              <MdDelete className="text-lg text-red-600" />
+            <Button htmlType="button" type="text">
+              <MdDelete className="text-xl text-red-600" />
             </Button>
           </Tooltip>
         </Popconfirm>

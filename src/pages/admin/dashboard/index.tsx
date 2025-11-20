@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Layout, Row, Col, Card } from "antd";
+import { Layout, Row, Col, Card, Typography, Space, Grid } from "antd";
 import {
   ShoppingOutlined,
   ClockCircleOutlined,
@@ -7,41 +7,55 @@ import {
   WarningOutlined,
 } from "@ant-design/icons";
 import { Line } from "@ant-design/plots";
-import { getRiwayatPeminjaman, fetchBarang,riwayat } from "../../../utils/apis";
+
+import {
+  getRiwayatPeminjaman,
+  fetchBarang,
+  riwayat,
+} from "../../../utils/apis";
 import { AdminLayout } from "../../../layouts";
 
 const { Content } = Layout;
+const { Text, Title } = Typography;
+const { useBreakpoint } = Grid;
 
 const Dashboard: React.FC = () => {
+  const screens = useBreakpoint();
+  const isSm = !!screens.sm; // responsive
+
   const [totalBarang, setTotalBarang] = useState<number>(0);
   const [peminjamanAktif, setPeminjamanAktif] = useState<number>(0);
   const [barangKembali, setBarangKembali] = useState<number>(0);
   const [barangHilang, setBarangHilang] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
 
+  // Fetch data API
   useEffect(() => {
     const loadData = async () => {
       try {
+        setLoading(true);
+
         const barangRes = await fetchBarang();
         const pinjamRes = await getRiwayatPeminjaman();
         const riwayatRes = await riwayat();
 
-        const listBarang = barangRes?.data?.response || [];
-        const listPinjam = pinjamRes?.data?.response || [];
-        const listRiwayat = riwayatRes?.data?.response || [];
+        const barangList = barangRes?.data?.response || barangRes?.data || [];
+        const pinjamList = pinjamRes?.data?.response || pinjamRes?.data || [];
+        const riwayatList =
+          riwayatRes?.data?.response || riwayatRes?.data || [];
 
-        setTotalBarang(listBarang.length);
+        setTotalBarang(barangList.length);
         setPeminjamanAktif(
-          listPinjam.filter((i: any) => i.status === "dipinjam").length
+          pinjamList.filter((i: any) => i.status === "dipinjam").length
         );
         setBarangKembali(
-          listRiwayat.filter((i: any) => i.status === "dikembalikan").length
+          riwayatList.filter((i: any) => i.status === "dikembalikan").length
         );
         setBarangHilang(
-          listRiwayat .filter((i: any) => i.status === "hilang").length
+          riwayatList.filter((i: any) => i.status === "hilang").length
         );
-      } catch (error) {
-        console.error("Gagal memuat data dashboard:", error);
+      } catch (err) {
+        console.error("Gagal load data", err);
       } finally {
         setLoading(false);
       }
@@ -50,8 +64,8 @@ const Dashboard: React.FC = () => {
     loadData();
   }, []);
 
-  // Dummy data grafik — bisa diganti dari API statistik bulanan
-  const data = [
+  // Chart Data
+  const chartData = [
     { month: "Jan", value: 10 },
     { month: "Feb", value: 15 },
     { month: "Mar", value: 8 },
@@ -60,130 +74,184 @@ const Dashboard: React.FC = () => {
     { month: "Jun", value: 25 },
   ];
 
-  const config = {
-    data,
+  const chartConfig = {
+    data: chartData,
     xField: "month",
     yField: "value",
     smooth: true,
+    height: isSm ? 280 : 220,
     color: "#2563eb",
-    point: { size: 5, shape: "diamond" },
-    tooltip: { showMarkers: true },
+    point: { size: 4 },
     areaStyle: { fill: "l(270) 0:#3b82f6 1:#93c5fd" },
+  };
+
+  // STYLE VARIABLES (lebih kecil & rapih)
+  const cardBase: React.CSSProperties = {
+    borderRadius: 14,
+    boxShadow: "0 6px 18px rgba(0,0,0,0.05)",
+    minHeight: 145,
+    display: "flex",
+    alignItems: "center",
+  };
+
+  const iconBox = (bg: string) => ({
+    width: isSm ? 58 : 48,
+    height: isSm ? 58 : 48,
+    borderRadius: 12,
+    background: bg,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  });
+
+  const iconSize = (color: string = "#fff") => ({
+    fontSize: isSm ? 26 : 22,
+    color,
+  });
+
+  const numberStyle: React.CSSProperties = {
+    fontSize: isSm ? 34 : 28,
+    fontWeight: 900,
+    lineHeight: 1,
   };
 
   return (
     <AdminLayout>
-      <Content className="m-6">
-        {/* Statistik Cards */}
+      <Content style={{ padding: isSm ? 20 : 24 }}>
         <Row gutter={[16, 16]}>
-          {/* Total Barang */}
+
+          {/* TOTAL BARANG */}
           <Col xs={24} sm={12} lg={6}>
             <Card
               loading={loading}
-              className="relative shadow-lg h-40 rounded-2xl overflow-hidden text-white"
-              bodyStyle={{ height: "100%", padding: "1.5rem" }}
+              bodyStyle={{ padding: 16 }}
               style={{
-                background: "linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)",
+                ...cardBase,
+                background: "linear-gradient(135deg,#2563eb,#3b82f6)",
+                color: "#fff",
               }}
             >
-              <div className="absolute bottom-[-40px] right-[-40px] w-40 h-40 bg-white/20 rounded-full"></div>
-              <div className="relative z-10 flex flex-col h-full justify-between">
-                <div className="flex items-center gap-2">
-                  <ShoppingOutlined className="text-2xl opacity-90" />
-                  <span className="text-xl font-semibold">Total Barang</span>
-                </div>
-                <div>
-                  <div className="text-4xl font-bold">{totalBarang}</div>
-                  <div className="text-sm opacity-80">Data Barang</div>
-                </div>
-              </div>
+              <Space
+                style={{ width: "100%", justifyContent: "space-between" }}
+              >
+                <Space size={14}>
+                  <div style={iconBox("rgba(255,255,255,0.15)")}>
+                    <ShoppingOutlined style={iconSize()} />
+                  </div>
+                  <Text style={{ fontSize: 16, fontWeight: 700 }}>
+                    Total Barang
+                  </Text>
+                </Space>
+
+                <Text style={numberStyle}>{totalBarang}</Text>
+              </Space>
             </Card>
           </Col>
 
-          {/* Peminjaman Aktif */}
+          {/* PEMINJAMAN AKTIF */}
           <Col xs={24} sm={12} lg={6}>
             <Card
               loading={loading}
-              className="relative shadow-lg h-40 rounded-2xl overflow-hidden text-white"
-              bodyStyle={{ height: "100%", padding: "1.5rem" }}
+              bodyStyle={{ padding: 16 }}
               style={{
-                background: "linear-gradient(135deg, #10b981 0%, #34d399 100%)",
+                ...cardBase,
+                background: "linear-gradient(135deg,#10b981,#34d399)",
+                color: "#fff",
               }}
             >
-              <div className="absolute bottom-[-40px] right-[-40px] w-40 h-40 bg-white/20 rounded-full"></div>
-              <div className="relative z-10 flex flex-col h-full justify-between">
-                <div className="flex items-center gap-2">
-                  <ClockCircleOutlined className="text-2xl opacity-90" />
-                  <span className="text-xl font-semibold">
+              <Space
+                style={{ width: "100%", justifyContent: "space-between" }}
+              >
+                <Space size={14}>
+                  <div style={iconBox("rgba(255,255,255,0.15)")}>
+                    <ClockCircleOutlined style={iconSize()} />
+                  </div>
+                  <Text style={{ fontSize: 16, fontWeight: 700 }}>
                     Peminjaman Aktif
-                  </span>
-                </div>
-                <div>
-                  <div className="text-4xl font-bold">{peminjamanAktif}</div>
-                  <div className="text-sm opacity-80">Masih Dipinjam</div>
-                </div>
-              </div>
+                  </Text>
+                </Space>
+
+                <Text style={numberStyle}>{peminjamanAktif}</Text>
+              </Space>
             </Card>
           </Col>
 
-          {/* Barang Dikembalikan */}
+          {/* DIKEMBALIKAN */}
           <Col xs={24} sm={12} lg={6}>
             <Card
               loading={loading}
-              className="relative shadow-lg h-40 rounded-2xl overflow-hidden text-white"
-              bodyStyle={{ height: "100%", padding: "1.5rem" }}
+              bodyStyle={{ padding: 16 }}
               style={{
-                background: "linear-gradient(135deg, #facc15 0%, #fde047 100%)",
+                ...cardBase,
+                background: "linear-gradient(135deg,#facc15,#fde047)",
+                color: "#1f2937",
               }}
             >
-              <div className="absolute bottom-[-40px] right-[-40px] w-40 h-40 bg-white/20 rounded-full"></div>
-              <div className="relative z-10 flex flex-col h-full justify-between">
-                <div className="flex items-center gap-2">
-                  <CheckCircleOutlined className="text-2xl opacity-90" />
-                  <span className="text-xl font-semibold">Dikembalikan</span>
-                </div>
-                <div>
-                  <div className="text-4xl font-bold">{barangKembali}</div>
-                  <div className="text-sm opacity-80">Sudah Kembali</div>
-                </div>
-              </div>
+              <Space
+                style={{ width: "100%", justifyContent: "space-between" }}
+              >
+                <Space size={14}>
+                  <div style={iconBox("rgba(0,0,0,0.06)")}>
+                    <CheckCircleOutlined
+                      style={iconSize("#92400e")}
+                    />
+                  </div>
+                  <Text style={{ fontSize: 16, fontWeight: 700 }}>
+                    Dikembalikan
+                  </Text>
+                </Space>
+
+                <Text style={numberStyle}>{barangKembali}</Text>
+              </Space>
             </Card>
           </Col>
 
-          {/* Barang Hilang */}
+          {/* BARANG HILANG */}
           <Col xs={24} sm={12} lg={6}>
             <Card
               loading={loading}
-              className="relative shadow-lg h-40 rounded-2xl overflow-hidden text-white"
-              bodyStyle={{ height: "100%", padding: "1.5rem" }}
+              bodyStyle={{ padding: 16 }}
               style={{
-                background: "linear-gradient(135deg, #ef4444 0%, #f87171 100%)",
+                ...cardBase,
+                background: "linear-gradient(135deg,#ef4444,#f87171)",
+                color: "#fff",
               }}
             >
-              <div className="absolute bottom-[-40px] right-[-40px] w-40 h-40 bg-white/20 rounded-full"></div>
-              <div className="relative z-10 flex flex-col h-full justify-between">
-                <div className="flex items-center gap-2">
-                  <WarningOutlined className="text-2xl opacity-90" />
-                  <span className="text-xl font-semibold">Barang Hilang</span>
-                </div>
-                <div>
-                  <div className="text-4xl font-bold">{barangHilang}</div>
-                  <div className="text-sm opacity-80">Kehilangan</div>
-                </div>
-              </div>
+              <Space
+                style={{ width: "100%", justifyContent: "space-between" }}
+              >
+                <Space size={14}>
+                  <div style={iconBox("rgba(255,255,255,0.15)")}>
+                    <WarningOutlined style={iconSize()} />
+                  </div>
+                  <Text style={{ fontSize: 16, fontWeight: 700 }}>
+                    Barang Hilang
+                  </Text>
+                </Space>
+
+                <Text style={numberStyle}>{barangHilang}</Text>
+              </Space>
             </Card>
           </Col>
+
         </Row>
 
-        {/* Grafik */}
-        <Row style={{ marginTop: "30px" }}>
+        {/* CHART */}
+        <Row style={{ marginTop: 20 }} gutter={[16, 16]}>
           <Col xs={24}>
             <Card
-              title="📊 Tren Peminjaman Barang"
-              className="shadow-xl rounded-2xl"
-              bodyStyle={{ padding: "1.5rem" }}
+              title={
+                <Title level={4} style={{ margin: 0 }}>
+                  📊 Tren Peminjaman Barang
+                </Title>
+              }
+              style={{
+                borderRadius: 14,
+                boxShadow: "0 6px 18px rgba(0,0,0,0.05)",
+              }}
+              bodyStyle={{ padding: isSm ? 20 : 14 }}
             >
-              <Line {...config} />
+              <Line {...chartConfig} />
             </Card>
           </Col>
         </Row>

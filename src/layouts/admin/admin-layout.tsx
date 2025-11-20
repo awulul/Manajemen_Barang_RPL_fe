@@ -1,3 +1,4 @@
+// ...existing code...
 import React, { useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import {
@@ -15,7 +16,8 @@ import {
   showNotificationError,
 } from "../../utils";
 import { logout } from "../../utils/apis";
-import logo from "../../assets/logo.jpg";
+import logo from "../../assets/adminlogo.png";
+import kantor from "../../assets/ruangan.jpg";
 
 const { Header, Sider, Content } = Layout;
 
@@ -26,6 +28,7 @@ interface AdminLayoutProps {
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [selectedKey, setSelectedKey] = useState<string>("1");
+
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -33,14 +36,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Auto select menu berdasarkan route
   useEffect(() => {
     const currentPath = location.pathname;
     const foundItem = menuItems
       .flatMap((section: any) => section.items)
       .find((item: any) => currentPath.startsWith(item.path));
-    if (foundItem) {
-      setSelectedKey(foundItem.key);
-    }
+
+    if (foundItem) setSelectedKey(foundItem.key);
   }, [location.pathname]);
 
   const handleMenuClick = (path: string, key: string) => {
@@ -87,13 +90,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         .split("/")
         .filter(Boolean);
 
-      if (subPath.length > 0) {
-        subPath.forEach((part) => {
-          breadcrumbItems.push({
-            title: part.charAt(0).toUpperCase() + part.slice(1),
-          });
+      subPath.forEach((part) => {
+        breadcrumbItems.push({
+          title: part.charAt(0).toUpperCase() + part.slice(1),
         });
-      }
+      });
     }
 
     return breadcrumbItems;
@@ -101,6 +102,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
   return (
     <Layout style={{ height: "100vh", overflow: "hidden" }}>
+      {/* ------------- SIDEBAR ------------- */}
       <Sider
         trigger={null}
         collapsible
@@ -108,10 +110,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         style={{
           height: "100vh",
           overflow: "auto",
-          backgroundColor: "#ffffff",
-          borderRight: "1px solid rgba(0,0,0,0.06)",
+          backgroundColor: "#ff8c00", // ORANGE
         }}
       >
+        {/* LOGO */}
         <div
           style={{
             height: 64,
@@ -119,35 +121,55 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             alignItems: "center",
             justifyContent: collapsed ? "center" : "flex-start",
             padding: collapsed ? 0 : "0 16px",
-            background: "#fff",
-            borderBottom: "1px solid rgba(0,0,0,0.04)",
+            background: "#ff8c00",
+            borderBottom: "1px solid rgba(255,255,255,0.2)",
           }}
         >
           <img
             src={logo}
             alt="logo"
-            style={{ width: 40, height: 40, objectFit: "contain" }}
+            style={{ width: collapsed ? 40 : 56, height: collapsed ? 40 : 56, objectFit: "contain" }}
           />
           {!collapsed && (
-            <span style={{ marginLeft: 12, fontWeight: 700, fontSize: 18 }}>
-              Admin
-            </span>
+            <div style={{ marginLeft: 12 }}>
+              <div style={{ fontWeight: 800, fontSize: 18, color: "#fff" }}>Admin</div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.85)" }}>Sistem Inventaris</div>
+            </div>
           )}
         </div>
 
+        {/* MENU LIST */}
         <Menu
-          style={{ backgroundColor: "#fff", borderRight: "none" }}
           mode="inline"
           selectedKeys={[selectedKey]}
+          style={{
+            backgroundColor: "#ff8c00",
+            color: "#fff",
+            borderRight: "none",
+          }}
         >
           {menuItems.map((section: any) => (
             <React.Fragment key={section.title}>
-              <Menu.ItemGroup title={section.title}>
+              <Menu.ItemGroup
+                title={
+                  <span style={{ color: "#fff", opacity: 0.9 }}>
+                    {section.title}
+                  </span>
+                }
+              >
                 {section.items.map((item: any) => (
                   <Menu.Item
                     key={item.key}
-                    icon={item.icon}
                     onClick={() => handleMenuClick(item.path, item.key)}
+                    icon={React.cloneElement(item.icon, {
+                      style: { color: "#fff" },
+                    })}
+                    style={{
+                      color: "#fff",
+                      fontWeight: selectedKey === item.key ? 700 : 500,
+                      backgroundColor:
+                        selectedKey === item.key ? "#d87800" : "transparent",
+                    }}
                   >
                     {item.label}
                   </Menu.Item>
@@ -156,37 +178,50 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             </React.Fragment>
           ))}
 
+          {/* LOGOUT */}
           <Menu.Item
             key="logout"
-            icon={<LogoutOutlined />}
+            icon={<LogoutOutlined style={{ color: "#fff" }} />}
             onClick={confirmLogout}
+            style={{
+              color: "#fff",
+              fontWeight: 600,
+            }}
           >
             Logout
           </Menu.Item>
         </Menu>
       </Sider>
 
+      {/* ------------- MAIN CONTENT ------------- */}
       <Layout>
         <Header
           style={{
             padding: "0 16px",
-            background: colorBgContainer,
+            background: "#ffffff",
             height: 64,
             display: "flex",
             alignItems: "center",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            position: "sticky",
+            top: 0,
+            zIndex: 10,
           }}
         >
           <Button
             type="text"
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            icon={
+              collapsed ? (
+                <MenuUnfoldOutlined style={{ color: "black" }} />
+              ) : (
+                <MenuFoldOutlined style={{ color: "black" }} />
+              )
+            }
             onClick={() => setCollapsed(!collapsed)}
             style={{
-              fontSize: 18,
+              fontSize: 20,
               width: 48,
               height: 48,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
             }}
           />
         </Header>
@@ -197,12 +232,26 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             overflow: "auto",
             margin: "24px 16px",
             padding: 24,
-            background: colorBgContainer,
+            backgroundImage: `url(${kantor})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
             borderRadius: borderRadiusLG,
+            position: "relative",
           }}
         >
-          <Breadcrumb items={getBreadcrumbItems()} />
-          <div style={{ marginTop: 16 }}>{children}</div>
+          {/* readable panel di atas gambar */}
+          <div
+            style={{
+              background: "rgba(255,255,255,0.92)",
+              padding: 20,
+              borderRadius: 12,
+              minHeight: "calc(100% - 40px)",
+              boxShadow: "0 6px 20px rgba(2,6,23,0.06)",
+            }}
+          >
+            <Breadcrumb items={getBreadcrumbItems()} />
+            <div style={{ marginTop: 16 }}>{children}</div>
+          </div>
         </Content>
       </Layout>
     </Layout>
