@@ -4,7 +4,7 @@ import { jwtDecode } from "jwt-decode";
 import type { AuthProps } from "../../types/auth";
 
 const API_JWT = axios.create({
-  baseURL: "http://localhost:2021",
+  baseURL: "http://localhost:2025",
   withCredentials: true,
 });
 
